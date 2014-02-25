@@ -43,7 +43,15 @@ class FWP_Proximity
      * Intialize
      */
     function init() {
+        add_filter( 'facetwp_facet_types', array( $this, 'register_facet_type' ) );
+    }
 
+
+    function register_facet_type( $facet_types ) {
+
+        include( dirname( __FILE__ ) . '/includes/proximity.php' );
+        $facet_types['proximity'] = new FacetWP_Facet_Proximity();
+        return $facet_types;
     }
 }
 
