@@ -31,8 +31,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 class FWP_Proximity
 {
-    public $lang;
-
 
     function __construct() {
         add_action( 'init' , array( $this, 'init' ) );
@@ -44,9 +42,70 @@ class FWP_Proximity
      */
     function init() {
         add_filter( 'facetwp_facet_types', array( $this, 'register_facet_type' ) );
+        add_filter( 'facetwp_index_row', array( $this, 'index_latlng' ), 10, 2 );
+        add_filter( 'facetwp_sort_options', array( $this, 'sort_options' ), 1, 2 );
+        add_filter( 'facetwp_filtered_post_ids', array( $this, 'sort_by_distance' ), 10, 2 );
     }
 
 
+    /**
+     * Index values for the Address Geocoder plugin
+     * @link http://wordpress.org/plugins/address-geocoder/
+     */
+    function index_latlng( $params, $class ) {
+
+        if ( 'cf/martygeocoderlatlng' == $params['facet_source'] ) {
+            $latlng = $params['facet_value'];
+            if ( !empty( $latlng ) ) {
+                $latlng = str_replace( '(', '', $latlng );
+                $latlng = str_replace( ')', '', $latlng );
+                $latlng = explode( ', ', $latlng );
+
+                $params['facet_value'] = $latlng[0];
+                $params['facet_display_value'] = $latlng[1];
+                $class->insert( $params );
+            }
+            return false;
+        }
+        return $params;
+    }
+
+
+    function sort_options( $options, $params ) {
+
+        // TODO: if a proximity facet is being used
+        if ( 0 ) {
+            $options['distance'] = array(
+                'label' => __( 'Distance', 'fwp' ),
+                'query_args' => array(
+                    'orderby' => 'post__in',
+                    'order' => 'ASC',
+                ),
+            );
+        }
+        return $options;
+    }
+
+
+    function sort_by_distance( $post_ids, $class ) {
+
+        var_dump($class);
+        // TODO: get $this->ordered_posts from the Proximity class, loop through,
+        // and preserve the order so that the nearest posts appear first
+        $intersected_ids = array();
+        foreach ( $matches as $match ) {
+            if ( in_array( $match, $post_ids ) ) {
+                $intersected_ids[] = $match;
+            }
+        }
+        //$post_ids = $intersected_ids;
+        return $post_ids;
+    }
+
+
+    /**
+     * Register the "proximity" facet type
+     */
     function register_facet_type( $facet_types ) {
 
         include( dirname( __FILE__ ) . '/includes/proximity.php' );
