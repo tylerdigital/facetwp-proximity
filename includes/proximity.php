@@ -18,14 +18,16 @@ class FacetWP_Facet_Proximity
 
         $output = '';
         $value = $params['selected_values'];
-        $value = empty( $value[0] ) ? '' : $value[0];
-        $output .= '<input type="text" class="facetwp-zip" value="' . esc_attr( $value ) . '" placeholder="' . __( 'Enter zip code', 'fwp' ) . '" />';
+        $zipcode = empty( $value[0] ) ? '' : $value[0];
+        $chosen_radius = empty( $value[1] ) ? '' : $value[1];
+        $output .= '<input type="text" class="facetwp-zip" value="' . esc_attr( $zipcode ) . '" placeholder="' . __( 'Enter zip code', 'fwp' ) . '" />';
         $output .= '<select class="facetwp-radius">';
         foreach ( array( 5, 10, 25, 50, 100 ) as $radius ) {
-            $output .= '<option value="' . $radius . '">' . $radius . ' miles</option>';
+            $selected = ( $chosen_radius == $radius ) ? ' selected' : '';
+            $output .= "<option value=\"$radius\"$selected>$radius miles</option>";
         }
         $output .= '</select>';
-        $output .= '<input type="button" class="facetwp-update" value="Find" />';
+        $output .= '<input type="button" class="facetwp-update" value="Apply" />';
         return $output;
     }
 
@@ -46,9 +48,16 @@ class FacetWP_Facet_Proximity
         $zip = $selected_values[0];
         $radius = $selected_values[1];
 
-        // Lookup the coordinates
-        $response = file_get_contents('http://api.zippopotam.us/us/' . $zip);
-        $response = json_decode( $response, true );
+        // Lookup the coordinates from an external service
+        $response = wp_remote_get( 'http://api.zippopotam.us/us/' . $zip );
+
+        try {
+            $response = json_decode( $response['body'], true );
+        }
+        catch ( Exception $ex ) {
+            return array();
+        }
+
         $lat = $response['places'][0]['latitude'];
         $lng = $response['places'][0]['longitude'];
 
@@ -100,7 +109,6 @@ class FacetWP_Facet_Proximity
 <script>
 (function($) {
     wp.hooks.addAction('facetwp/refresh/proximity', function($this, facet_name) {
-        console.log($this);
         FWP.facets[facet_name] = [
             $this.find('.facetwp-zip').val(),
             $this.find('.facetwp-radius').val()
