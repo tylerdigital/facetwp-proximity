@@ -71,34 +71,45 @@ class FWP_Proximity
     }
 
 
+    /**
+     * Add "Distance" to the sort box
+     */
     function sort_options( $options, $params ) {
 
-        // TODO: if a proximity facet is being used
-        if ( 0 ) {
-            $options['distance'] = array(
-                'label' => __( 'Distance', 'fwp' ),
-                'query_args' => array(
-                    'orderby' => 'post__in',
-                    'order' => 'ASC',
-                ),
-            );
-        }
+        $options['distance'] = array(
+            'label' => __( 'Distance', 'fwp' ),
+            'query_args' => array(
+                'orderby' => 'post__in',
+                'order' => 'ASC',
+            ),
+        );
         return $options;
     }
 
 
+    /**
+     * After the final list of post IDs has been produced,
+     * sort them by distance if needed
+     */
     function sort_by_distance( $post_ids, $class ) {
 
-        var_dump($class);
-        // TODO: get $this->ordered_posts from the Proximity class, loop through,
-        // and preserve the order so that the nearest posts appear first
-        $intersected_ids = array();
-        foreach ( $matches as $match ) {
-            if ( in_array( $match, $post_ids ) ) {
-                $intersected_ids[] = $match;
+        global $facetwp;
+
+        $helper = FacetWP_Helper::instance();
+        $ordered_posts = $helper->facet_types['proximity']->ordered_posts;
+
+        if ( !empty( $ordered_posts ) ) {
+
+            // Sort the post IDs according to distance
+            $intersected_ids = array();
+
+            foreach ( $ordered_posts as $p ) {
+                if ( in_array( $p, $post_ids ) ) {
+                    $intersected_ids[] = $p;
+                }
             }
+            $post_ids = $intersected_ids;
         }
-        //$post_ids = $intersected_ids;
         return $post_ids;
     }
 
