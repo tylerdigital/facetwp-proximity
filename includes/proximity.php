@@ -109,10 +109,9 @@ class FacetWP_Facet_Proximity
 <script>
 (function($) {
     wp.hooks.addAction('facetwp/refresh/proximity', function($this, facet_name) {
-        FWP.facets[facet_name] = [
-            $this.find('.facetwp-zip').val(),
-            $this.find('.facetwp-radius').val()
-        ];
+        var zip = $this.find('.facetwp-zip').val();
+        var radius = $this.find('.facetwp-radius').val();
+        FWP.facets[facet_name] = ('' != zip) ? [zip, radius] : [];
     });
 
     wp.hooks.addAction('facetwp/ready', function() {
