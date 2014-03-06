@@ -6,7 +6,7 @@ A [FacetWP](https://facetwp.com/) facet for filtering posts by proximity. This p
 ![screenshot](http://i.imgur.com/ldGNfjc.png)
 
 ## Requirements
-* FacetWP 1.4.0 or higher
+* FacetWP 1.3.3 or higher
 * [Address Geocoder](http://wordpress.org/plugins/address-geocoder/) 0.5 or higher
 * WordPress 3.8 or higher
 
