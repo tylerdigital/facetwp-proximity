@@ -18,15 +18,18 @@ class FacetWP_Facet_Proximity
 
         $output = '';
         $value = $params['selected_values'];
-        $zipcode = empty( $value[0] ) ? '' : $value[0];
-        $chosen_radius = empty( $value[1] ) ? '' : $value[1];
-        $output .= '<input type="text" class="facetwp-zip" value="' . esc_attr( $zipcode ) . '" placeholder="' . __( 'Enter zip code', 'fwp' ) . '" />';
-        $output .= '<select class="facetwp-radius">';
+        $lat = empty( $value[0] ) ? '' : $value[0];
+        $lng = empty( $value[1] ) ? '' : $value[1];
+        $chosen_radius = empty( $value[2] ) ? '' : $value[2];
+        $output .= '<input type="text" id="facetwp-location" placeholder="' . __( 'Enter location...', 'fwp' ) . '" />';
+        $output .= '<select id="facetwp-radius">';
         foreach ( array( 5, 10, 25, 50, 100 ) as $radius ) {
             $selected = ( $chosen_radius == $radius ) ? ' selected' : '';
             $output .= "<option value=\"$radius\"$selected>$radius miles</option>";
         }
         $output .= '</select>';
+        $output .= '<input type="text" class="facetwp-lat" value="' . $lat . '" />';
+        $output .= '<input type="text" class="facetwp-lng" value="' . $lng . '" />';
         $output .= '<input type="button" class="facetwp-update" value="Apply" />';
         return $output;
     }
@@ -45,21 +48,9 @@ class FacetWP_Facet_Proximity
             return 'continue';
         }
 
-        $zip = $selected_values[0];
-        $radius = $selected_values[1];
-
-        // Lookup the coordinates from an external service
-        $response = wp_remote_get( 'http://api.zippopotam.us/us/' . $zip );
-
-        try {
-            $response = json_decode( $response['body'], true );
-        }
-        catch ( Exception $ex ) {
-            return array();
-        }
-
-        $lat = $response['places'][0]['latitude'];
-        $lng = $response['places'][0]['longitude'];
+        $lat = (float) $selected_values[0];
+        $lng = (float) $selected_values[1];
+        $radius = (int) $selected_values[2];
 
         // Lat = facet_value
         // Lng = facet_display_value
@@ -106,12 +97,43 @@ class FacetWP_Facet_Proximity
      */
     function front_scripts() {
 ?>
+<script src="//maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places"></script>
+<script>
+
+(function($) {
+    $(document).on('facetwp-loaded', function() {
+        var place;
+        var input = document.getElementById('facetwp-location');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+
+        google.maps.event.addListener(autocomplete, 'place_changed', function () {
+            place = autocomplete.getPlace();
+            $('.facetwp-lat').val(place.geometry.location.lat());
+            $('.facetwp-lng').val(place.geometry.location.lng());
+        });
+
+        $(document).on('click', '.facetwp-update', function() {
+            var latlng = [
+                place.geometry.location.lat(),
+                place.geometry.location.lng(),
+            ];
+            console.log(latlng);
+        });
+
+        $(document).on('click', '#facetwp-location', function() {
+            $(this).val('');
+        });
+    });
+})(jQuery);
+
+</script>
 <script>
 (function($) {
     wp.hooks.addAction('facetwp/refresh/proximity', function($this, facet_name) {
-        var zip = $this.find('.facetwp-zip').val();
-        var radius = $this.find('.facetwp-radius').val();
-        FWP.facets[facet_name] = ('' != zip) ? [zip, radius] : [];
+        var lat = $this.find('.facetwp-lat').val();
+        var lng = $this.find('.facetwp-lng').val();
+        var radius = $this.find('#facetwp-radius').val();
+        FWP.facets[facet_name] = ('' != lat) ? [lat, lng, radius] : [];
     });
 
     wp.hooks.addAction('facetwp/ready', function() {

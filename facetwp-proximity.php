@@ -93,8 +93,6 @@ class FWP_Proximity
      */
     function sort_by_distance( $post_ids, $class ) {
 
-        global $facetwp;
-
         $helper = FacetWP_Helper::instance();
         $ordered_posts = $helper->facet_types['proximity']->ordered_posts;
 
