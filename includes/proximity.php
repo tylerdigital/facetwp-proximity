@@ -112,14 +112,6 @@ class FacetWP_Facet_Proximity
             $('.facetwp-lng').val(place.geometry.location.lng());
         });
 
-        $(document).on('click', '.facetwp-update', function() {
-            var latlng = [
-                place.geometry.location.lat(),
-                place.geometry.location.lng(),
-            ];
-            console.log(latlng);
-        });
-
         $(document).on('click', '#facetwp-location', function() {
             $(this).val('');
         });
