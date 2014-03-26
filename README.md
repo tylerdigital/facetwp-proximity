@@ -1,13 +1,13 @@
 FacetWP - Proximity Facet
 =======================
 
-A [FacetWP](https://facetwp.com/) facet for filtering posts by proximity. This plugin is in EARLY ALPHA. Use at your own risk!
+A [FacetWP](https://facetwp.com/) facet for filtering posts by proximity. Uses the [Google Places API](https://developers.google.com/places/documentation/autocomplete) to display an autocomplete search box.
 
-![screenshot](http://i.imgur.com/ldGNfjc.png)
+![screenshot](http://i.imgur.com/zWolfCb.png)
 
 ## Requirements
-* FacetWP 1.3.3 or higher
-* [Address Geocoder](http://wordpress.org/plugins/address-geocoder/) 0.5 or higher
+* FacetWP 1.4.0 or higher
+* [Address Geocoder](http://wordpress.org/plugins/address-geocoder/) 0.6 or higher
 * WordPress 3.8 or higher
 
 ## Installation
