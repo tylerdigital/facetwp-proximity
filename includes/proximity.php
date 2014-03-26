@@ -21,15 +21,19 @@ class FacetWP_Facet_Proximity
         $lat = empty( $value[0] ) ? '' : $value[0];
         $lng = empty( $value[1] ) ? '' : $value[1];
         $chosen_radius = empty( $value[2] ) ? '' : $value[2];
-        $output .= '<input type="text" id="facetwp-location" placeholder="' . __( 'Enter location...', 'fwp' ) . '" />';
+        $location_name = empty( $value[3] ) ? '' : urldecode( $value[3] );
+        $output .= '<input type="text" id="facetwp-location" value="' . $location_name . '" placeholder="' . __( 'Enter location...', 'fwp' ) . '" />';
         $output .= '<select id="facetwp-radius">';
         foreach ( array( 5, 10, 25, 50, 100 ) as $radius ) {
             $selected = ( $chosen_radius == $radius ) ? ' selected' : '';
             $output .= "<option value=\"$radius\"$selected>$radius miles</option>";
         }
         $output .= '</select>';
+        $output .= '<div style="display:none">';
         $output .= '<input type="text" class="facetwp-lat" value="' . $lat . '" />';
         $output .= '<input type="text" class="facetwp-lng" value="' . $lng . '" />';
+        $output .= '</div>';
+        $output .= '<input type="button" class="facetwp-reset" value="Reset" />';
         $output .= '<input type="button" class="facetwp-update" value="Apply" />';
         return $output;
     }
@@ -125,12 +129,21 @@ class FacetWP_Facet_Proximity
         var lat = $this.find('.facetwp-lat').val();
         var lng = $this.find('.facetwp-lng').val();
         var radius = $this.find('#facetwp-radius').val();
-        FWP.facets[facet_name] = ('' != lat) ? [lat, lng, radius] : [];
+        var location = encodeURIComponent($this.find('#facetwp-location').val());
+        FWP.facets[facet_name] = ('' != lat && 'undefined' != typeof lat) ?
+            [lat, lng, radius, location] : [];
     });
 
     wp.hooks.addAction('facetwp/ready', function() {
         $(function() {
             $(document).on('click', '.facetwp-update', function() {
+                FWP.refresh();
+            });
+
+            $(document).on('click', '.facetwp-reset', function() {
+                var $parent = $(this).closest('.facetwp-facet');
+                $parent.find('.facetwp-lat').val('');
+                $parent.find('.facetwp-lng').val('');
                 FWP.refresh();
             });
         });
