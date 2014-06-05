@@ -3,11 +3,11 @@
 Plugin Name: FacetWP - Proximity
 Plugin URI: https://facetwp.com/
 Description: A FacetWP facet to filter posts by proximity
-Version: 1.0.0
+Version: 1.1.0
 Author: Matt Gibbs
 Author URI: https://facetwp.com/
 GitHub Plugin URI: https://github.com/mgibbs189/facetwp-proximity
-GitHub Branch: 1.0.0
+GitHub Branch: 1.1.0
 
 Copyright 2014 Matt Gibbs
 
@@ -93,8 +93,7 @@ class FWP_Proximity
      */
     function sort_by_distance( $post_ids, $class ) {
 
-        $helper = FacetWP_Helper::instance();
-        $ordered_posts = $helper->facet_types['proximity']->ordered_posts;
+        $ordered_posts = FWP()->helper->facet_types['proximity']->ordered_posts;
 
         if ( !empty( $ordered_posts ) ) {
 
