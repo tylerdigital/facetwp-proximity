@@ -33,8 +33,8 @@ class FacetWP_Facet_Proximity
         $output .= '<input type="text" class="facetwp-lat" value="' . $lat . '" />';
         $output .= '<input type="text" class="facetwp-lng" value="' . $lng . '" />';
         $output .= '</div>';
-        $output .= '<input type="button" class="facetwp-reset" value="Reset" />';
         $output .= '<input type="button" class="facetwp-update" value="Apply" />';
+        $output .= '<input type="button" class="facetwp-reset" value="Reset" />';
         return $output;
     }
 
