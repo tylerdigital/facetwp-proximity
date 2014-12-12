@@ -17,25 +17,35 @@ class FacetWP_Facet_Proximity
     function render( $params ) {
 
         $output = '';
+        $facet = $params['facet'];
         $value = $params['selected_values'];
+        $unit = empty( $facet['unit'] ) ? 'mi' : $facet['unit'];
+
         $lat = empty( $value[0] ) ? '' : $value[0];
         $lng = empty( $value[1] ) ? '' : $value[1];
         $chosen_radius = empty( $value[2] ) ? '' : $value[2];
         $location_name = empty( $value[3] ) ? '' : urldecode( $value[3] );
-        $output .= '<input type="text" id="facetwp-location" value="' . $location_name . '" placeholder="' . __( 'Enter location...', 'fwp' ) . '" />';
-        $output .= '<select id="facetwp-radius">';
-        foreach ( array( 5, 10, 25, 50, 100 ) as $radius ) {
-            $selected = ( $chosen_radius == $radius ) ? ' selected' : '';
-            $output .= "<option value=\"$radius\"$selected>$radius miles</option>";
-        }
-        $output .= '</select>';
-        $output .= '<div style="display:none">';
-        $output .= '<input type="text" class="facetwp-lat" value="' . $lat . '" />';
-        $output .= '<input type="text" class="facetwp-lng" value="' . $lng . '" />';
-        $output .= '</div>';
-        $output .= '<input type="button" class="facetwp-update" value="Apply" />';
-        $output .= '<input type="button" class="facetwp-reset" value="Reset" />';
-        return $output;
+
+        ob_start();
+?>
+        <input type="text" id="facetwp-location" value="<?php echo $location_name; ?>" placeholder="<?php _e( 'Enter location', 'fwp' ); ?>" />
+
+        <select id="facetwp-radius">
+            <?php foreach ( array( 5, 10, 25, 50, 100 ) as $radius ) : ?>
+            <?php $selected = ( $chosen_radius == $radius ) ? ' selected' : ''; ?>
+            <option value="<?php echo $radius; ?>"<?php echo $selected; ?>><?php echo "$radius $unit"; ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <div style="display:none">
+            <input type="text" class="facetwp-lat" value="<?php echo $lat; ?>" />
+            <input type="text" class="facetwp-lng" value="<?php echo $lng; ?>" />
+        </div>
+
+        <input type="button" class="facetwp-update" value="<?php _e( 'Apply', 'fwp' ); ?>" />
+        <input type="button" class="facetwp-reset" value="<?php _e( 'Reset', 'fwp' ); ?>" />
+<?php
+        return ob_get_clean();
     }
 
 
@@ -47,6 +57,8 @@ class FacetWP_Facet_Proximity
 
         $facet = $params['facet'];
         $selected_values = $params['selected_values'];
+        $unit = empty( $facet['unit'] ) ? 'mi' : $facet['unit'];
+        $earth_radius = ( 'mi' == $unit ) ? 3959 : 6371;
 
         if ( empty( $selected_values ) || empty( $selected_values[0] ) ) {
             return 'continue';
@@ -58,10 +70,9 @@ class FacetWP_Facet_Proximity
 
         // Lat = facet_value
         // Lng = facet_display_value
-        // TODO: optimize
         $sql = "
         SELECT DISTINCT post_id,
-        ( 3959 * acos( cos( radians( $lat ) ) * cos( radians( facet_value ) ) * cos( radians( facet_display_value ) - radians( $lng ) ) + sin( radians( $lat ) ) * sin( radians( facet_value ) ) ) ) AS distance
+        ( $earth_radius * acos( cos( radians( $lat ) ) * cos( radians( facet_value ) ) * cos( radians( facet_display_value ) - radians( $lng ) ) + sin( radians( $lat ) ) * sin( radians( facet_value ) ) ) ) AS distance
         FROM {$wpdb->prefix}facetwp_index
         WHERE facet_name = '{$facet['name']}'
         HAVING distance < $radius
@@ -81,14 +92,13 @@ class FacetWP_Facet_Proximity
 (function($) {
     wp.hooks.addAction('facetwp/load/proximity', function($this, obj) {
         $this.find('.facet-source').val(obj.source);
+        $this.find('.type-proximity .facet-unit').val(obj.unit);
     });
 
     wp.hooks.addFilter('facetwp/save/proximity', function($this, obj) {
         obj['source'] = $this.find('.facet-source').val();
+        obj['unit'] = $this.find('.type-proximity .facet-unit').val();
         return obj;
-    });
-
-    wp.hooks.addAction('facetwp/change/proximity', function($this) {
     });
 })(jQuery);
 </script>
@@ -158,5 +168,18 @@ class FacetWP_Facet_Proximity
      * Output admin settings HTML
      */
     function settings_html() {
+?>
+        <tr class="facetwp-conditional type-proximity">
+            <td>
+                <?php _e('Unit of measurement', 'fwp'); ?>:
+            </td>
+            <td>
+                <select class="facet-unit">
+                    <option value="mi"><?php _e( 'Miles', 'fwp' ); ?></option>
+                    <option value="km"><?php _e( 'Kilometers', 'fwp' ); ?></option>
+                </select>
+            </td>
+        </tr>
+<?php
     }
 }
