@@ -6,8 +6,7 @@ Description: A FacetWP facet to filter posts by proximity
 Version: 1.2
 Author: Matt Gibbs
 Author URI: https://facetwp.com/
-GitHub Plugin URI: https://github.com/mgibbs189/facetwp-proximity
-GitHub Branch: 1.2
+GitHub Plugin URI: https://github.com/FacetWP/facetwp-proximity
 
 Copyright 2014 Matt Gibbs
 
