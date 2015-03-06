@@ -26,12 +26,14 @@ class FacetWP_Facet_Proximity
         $chosen_radius = empty( $value[2] ) ? '' : $value[2];
         $location_name = empty( $value[3] ) ? '' : urldecode( $value[3] );
 
+        $radius_options = apply_filters( 'facetwp_proximity_radius_options', array( 5, 10, 25, 50, 100 ) );
+
         ob_start();
 ?>
         <input type="text" id="facetwp-location" value="<?php echo $location_name; ?>" placeholder="<?php _e( 'Enter location', 'fwp' ); ?>" />
 
         <select id="facetwp-radius">
-            <?php foreach ( array( 5, 10, 25, 50, 100 ) as $radius ) : ?>
+            <?php foreach ( $radius_options as $radius ) : ?>
             <?php $selected = ( $chosen_radius == $radius ) ? ' selected' : ''; ?>
             <option value="<?php echo $radius; ?>"<?php echo $selected; ?>><?php echo "$radius $unit"; ?></option>
             <?php endforeach; ?>

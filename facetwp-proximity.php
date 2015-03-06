@@ -3,7 +3,7 @@
 Plugin Name: FacetWP - Proximity
 Plugin URI: https://facetwp.com/
 Description: A FacetWP facet to filter posts by proximity
-Version: 1.2
+Version: 1.2.1
 Author: Matt Gibbs
 Author URI: https://facetwp.com/
 GitHub Plugin URI: https://github.com/FacetWP/facetwp-proximity
