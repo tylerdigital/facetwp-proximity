@@ -112,8 +112,12 @@ class FacetWP_Facet_Proximity
      * Output any front-end scripts
      */
     function front_scripts() {
+        if ( apply_filters( 'facetwp_proximity_load_js', true ) ) {
 ?>
 <script src="//maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places"></script>
+<?php
+        }
+?>
 <script>
 
 (function($) {
