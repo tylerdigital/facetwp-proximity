@@ -80,9 +80,13 @@ class FacetWP_Facet_Proximity
         HAVING distance < $radius
         ORDER BY distance";
 
-        $this->ordered_posts = $wpdb->get_col( $sql );
-        return $this->ordered_posts;
-    }
+        $results = $wpdb->get_results( $sql );
+        FWP()->distance_data = array();
+        foreach ( $results as $result ) {
+            $this->ordered_posts[] = $result->post_id;
+            FWP()->distance_data[$result->post_id] = $result->distance;
+        }
+        return $this->ordered_posts;    }
 
 
     /**
