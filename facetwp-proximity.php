@@ -76,10 +76,17 @@ class FWP_Proximity
     function sort_options( $options, $params ) {
 
         $options['distance'] = array(
-            'label' => __( 'Distance', 'fwp' ),
+            'label' => __( 'Distance Nearest', 'fwp' ),
             'query_args' => array(
                 'orderby' => 'post__in',
                 'order' => 'ASC',
+            ),
+        );
+        $options['distance_z'] = array(
+            'label' => __( 'Distance Furthest', 'fwp' ),
+            'query_args' => array(
+                'orderby' => 'post__in',
+                'order' => 'DESC',
             ),
         );
         return $options;
@@ -105,6 +112,14 @@ class FWP_Proximity
                 }
             }
             $post_ids = $intersected_ids;
+            
+            if ( $class &&
+                $class->ajax_params &&
+                $class->ajax_params['extras'] &&
+                $class->ajax_params['extras']['sort'] &&
+                $class->ajax_params['extras']['sort'] == 'distance_z' ) {
+                $post_ids = array_reverse($post_ids, true);
+            }
         }
         return $post_ids;
     }
